@@ -10,9 +10,13 @@ import com.sun.btrace.annotations.ProbeClassName;
 import com.sun.btrace.annotations.ProbeMethodName;
 
 import static com.sun.btrace.BTraceUtils.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 
-@BTrace
+@BTrace(unsafe=true)
 public class TraceScript {
     @OnMethod(clazz="net.java.btrace.BTraceBench", method="testInstrumentedMethod")
     public static void onMethodEntryEmpty(@ProbeClassName String pcn, @ProbeMethodName String pmn) {

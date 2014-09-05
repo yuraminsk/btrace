@@ -225,7 +225,7 @@ public class BTraceBench {
             Options opt = new OptionsBuilder()
                     .addProfiler(ProfilerFactory.getProfilerByName("gc"))
                     .jvmArgsPrepend("-javaagent:" + bc.agentJar + "=noServer=true,"
-                            + "script=" + bc.scriptPath)
+                            + "unsafe=true,script=" + bc.scriptPath)
                     .include(".*" + BTraceBench.class.getSimpleName() + ".*test.*")
                     .build();
 
