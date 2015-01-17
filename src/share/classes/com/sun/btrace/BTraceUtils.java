@@ -46,9 +46,11 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
@@ -945,6 +947,56 @@ public class BTraceUtils {
         }
         buf.append(']');
         println(buf.toString());
+    }
+
+    public static void printArgs(AnyType[] args) {
+        StringBuilder buf = new StringBuilder();
+        buf.append('(');
+        int length = args.length - 1;
+        int i = 0;
+        for (; i < length; i++) {
+            buf.append(Strings.str(args[i]));
+            buf.append(", ");
+        }
+        if (i == length) {
+           buf.append(Strings.str(args[i]));
+        }
+        buf.append(')');
+        println(buf.toString());
+    }
+
+    public static int getStackTraceDeep(){
+        return Thread.currentThread().getStackTrace().length;
+    }
+
+    private static final int PREDEFINED_PAD_SIZE = 3;
+    private static final ConcurrentHashMap<Integer, String> intToPad = new ConcurrentHashMap<Integer, String>();
+    private static final String[] PADS = new String[PREDEFINED_PAD_SIZE];
+
+    static {
+        StringBuilder pad = new StringBuilder("");
+        for (int i = 0; i < PREDEFINED_PAD_SIZE; i++) {
+            PADS[i] = pad.toString();
+            pad.append(' ');
+        }
+    }
+
+    public static String getPad(int padSize){
+        if (padSize >= 0 && padSize < PREDEFINED_PAD_SIZE) {
+            return PADS[padSize];
+        }
+        String pad = intToPad.get(padSize);
+        if (pad != null) {
+            return pad;
+        } else {
+            StringBuilder sb = new StringBuilder(PADS[PREDEFINED_PAD_SIZE - 1]);
+            for (int i = PREDEFINED_PAD_SIZE - 1; i < padSize; i++) {
+                sb.append(' ');
+            }
+            pad = sb.toString();
+            intToPad.putIfAbsent(padSize, pad);
+            return pad;
+        }
     }
 
     /**
@@ -1900,6 +1952,10 @@ public class BTraceUtils {
      * @return  a string representation of the argument in base&nbsp;10.
      */
     public static String str(int i) {
+        return Strings.str(i);
+    }
+
+    public static String str(Integer i){
         return Strings.str(i);
     }
 
